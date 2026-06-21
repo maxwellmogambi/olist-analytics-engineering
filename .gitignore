@@ -1,0 +1,33 @@
+# dbt project gitignore
+# Virtual environment
+myvenv/
+venv/
+
+# dbt outputs
+target/
+dbt_packages/
+logs/
+
+# dbt local config
+.user.yml
+profiles.yml
+
+# Database files (VERY IMPORTANT - yours is 94MB)
+*.db
+*.duckdb
+
+
+# Python
+__pycache__/
+*.pyc
+
+# IDEs
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+data/
+olist_dbt_project.db

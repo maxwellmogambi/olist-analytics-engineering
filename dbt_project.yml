@@ -1,0 +1,22 @@
+# This file is used to configure your dbt project. It contains information about the name of the project, the version of dbt that it is compatible with, and the paths to various directories within the project.
+# Think of it as HOW THE PROJECT IS STRUCTERED, AND WORKS
+
+name: olist_dbt_project
+version: '1.0.0'
+config-version: 2
+
+profile: olist_dbt_project
+
+model-paths: ['models']
+analysis-paths: ['analysis']
+test-paths: ['tests']
+macro-paths: ['macros']
+snapshot-paths: ['snapshots']
+
+clean-targets:
+  - 'targets'
+  - 'dbt_modules'
+
+models:
+  olist_dbt_project:
+    +materialized: view

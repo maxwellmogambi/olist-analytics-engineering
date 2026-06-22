@@ -58,4 +58,5 @@ conn.execute("""
                 FROM read_csv_auto('data/olist_sellers_dataset.csv')
                 """)
 
+
 print("Loaded successfully")

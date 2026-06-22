@@ -13,4 +13,4 @@ sources:
       - name: products
       - name: sellers
       - name: geolocation
-      - name: product_category_translation
+      - name: product_translations

@@ -1,0 +1,19 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: "This model is a staging table for customers data."
+    columns:
+      - name: customer_id
+        description: "Unique identifier for each customer."
+        data_tests:
+          - not_null
+          - unique
+      - name: customer_unique_id
+        description: "Unique identifier for each customer across all orders."
+      - name: customer_zip_code_prefix
+        description: "ZIP code prefix of the customer's address."
+      - name: customer_city
+        description: "City of the customer's address."
+      - name: customer_state
+        description: "State of the customer's address."

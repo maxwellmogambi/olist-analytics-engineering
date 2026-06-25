@@ -1,3 +1,6 @@
+-- Grain:
+-- 1 row = 1 customer
+
 with orders as (
 
     select *

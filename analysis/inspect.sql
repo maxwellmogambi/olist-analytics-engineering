@@ -1,4 +1,3 @@
 select
-    count(*) as rows,
-    count(distinct customer_id) as distinct_customers
-from {{ ref('dim_customer_enriched') }}
+    sum(price) as product_revenue
+from {{ ref('stg_order_items') }}

@@ -1,0 +1,17 @@
+-- Grain:
+-- 1 row = 1 seller
+
+with sellers as (
+
+    select *
+    from {{ ref('stg_sellers') }}
+
+)
+
+select
+    seller_id,
+    seller_zip_code_prefix,
+    seller_city,
+    seller_state
+
+from sellers

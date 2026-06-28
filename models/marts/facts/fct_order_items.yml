@@ -1,0 +1,50 @@
+version: 2
+
+models:
+  - name: fct_order_items
+    description: "Fact table at the order item grain."
+
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - order_id
+              - order_item_id
+            
+    columns:
+      - name: order_id
+        description: "Order identifier."
+        data_tests:
+          - not_null
+
+      - name: order_item_id
+        description: "Line item identifier within an order."
+        data_tests:
+          - not_null
+
+      - name: customer_id
+        description: "Customer who placed the order."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+
+      - name: product_id
+        description: "Purchased product."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_products')
+                field: product_id
+
+      - name: seller_id
+        description: "Seller fulfilling the item."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_sellers')
+                field: seller_id

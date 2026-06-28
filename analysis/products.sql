@@ -1,3 +1,4 @@
 select
-    sum(total_revenue) as product_revenue
-from {{ ref('int_product_sales') }}
+    count(*) as rows,
+    count(distinct product_id) as distinct_products
+from {{ ref('dim_products') }}

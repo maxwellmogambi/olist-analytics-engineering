@@ -6,17 +6,34 @@ with products as (
     select *
     from {{ ref('stg_products') }}
 
+),
+
+categories as (
+
+    select *
+    from {{ ref('int_product_categories') }}
+
 )
 
 select
-    product_id,
-    coalesce(product_category_name, 'Unknown') as product_category_name,
-    product_name_lenght,
-    product_description_lenght,
-    product_photos_qty,
-    product_weight_g,
-    product_length_cm,
-    product_height_cm,
-    product_width_cm
+    p.product_id,
 
-from products
+    coalesce(p.product_category_name, 'Unknown') as product_category_name,
+
+    coalesce(
+        c.product_category_name_english,
+        'Unknown'
+    ) as product_category_name_english,
+
+    p.product_name_lenght,
+    p.product_description_lenght,
+    p.product_photos_qty,
+    p.product_weight_g,
+    p.product_length_cm,
+    p.product_height_cm,
+    p.product_width_cm
+
+from products p
+
+left join categories c
+    on p.product_category_name = c.product_category_name

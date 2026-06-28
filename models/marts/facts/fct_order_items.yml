@@ -2,7 +2,7 @@ version: 2
 
 models:
   - name: fct_order_items
-    description: "Fact table at the order item grain."
+    description: "Fact table containing one record per purchased item within an order. This model captures transactional measures and foreign keys used for product, seller, customer, and order analysis."
 
     data_tests:
       - dbt_utils.unique_combination_of_columns:
@@ -10,12 +10,16 @@ models:
             combination_of_columns:
               - order_id
               - order_item_id
-            
+
     columns:
       - name: order_id
-        description: "Order identifier."
+        description: "Unique identifier of the order containing this line item."
         data_tests:
           - not_null
+          - relationships:
+              arguments:
+                to: ref('fct_orders')
+                field: order_id  
 
       - name: order_item_id
         description: "Line item identifier within an order."
@@ -23,7 +27,7 @@ models:
           - not_null
 
       - name: customer_id
-        description: "Customer who placed the order."
+        description: "Identifier of the customer who purchased the item."
         data_tests:
           - not_null
           - relationships:
@@ -32,7 +36,7 @@ models:
                 field: customer_id
 
       - name: product_id
-        description: "Purchased product."
+        description: "Unique identifier of the purchased product."
         data_tests:
           - not_null
           - relationships:
@@ -40,11 +44,45 @@ models:
                 to: ref('dim_products')
                 field: product_id
 
+
       - name: seller_id
-        description: "Seller fulfilling the item."
+        description: "Unique identifier of the seller fulfilling the item."
         data_tests:
           - not_null
           - relationships:
               arguments:
                 to: ref('dim_sellers')
                 field: seller_id
+
+      - name: order_purchased_at
+        description: "Timestamp of when the order was placed."
+        data_tests:
+          - not_null
+
+      - name: order_approved_at
+        description: "Timestamp of when the order was approved."
+    
+      - name: order_delivered_carrier_date
+        description: "Timestamp when the order was handed over to the carrier."
+
+      - name: order_delivered_customer_date
+        description: "Timestamp when the customer received the order."
+
+      - name: order_estimated_delivery_date
+        description: "Estimated delivery date communicated to the customer."
+
+      - name: shipping_limit_date
+        description: "Deadline by which the seller must ship the order item."
+
+      - name: price
+        description: "Sale price of the purchased item."
+        data_tests:
+          - not_null
+
+      - name: freight_value
+        description: "Shipping fee charged for the purchased item."
+        data_tests:
+          - not_null
+
+
+                

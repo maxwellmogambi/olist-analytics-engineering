@@ -1,0 +1,13 @@
+version: 2
+
+models:
+  - name: stg_product_category_translation
+    description: "This model is a staging table for product category translations."
+    columns:
+      - name: product_category_name
+        description: "Product category name from the source dataset."
+        data_tests:
+          - not_null
+          - unique
+      - name: product_category_name_english
+        description: "English translation of the product category name."

@@ -1,0 +1,77 @@
+version: 2
+
+models:
+  - name: fct_reviews
+    description: >
+      Fact table containing one record per review record associated with an order.
+
+      Grain:
+      One row = one review record associated with an order.
+
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - review_id
+              - order_id
+
+    columns:
+      - name: review_id
+        description: "Identifier of the review. A review identifier may be associated with multiple orders."
+        data_tests:
+          - not_null
+
+      - name: order_id
+        description: "Unique identifier of the order associated with the review."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('fct_orders')
+                field: order_id
+
+      - name: customer_id
+        description: "Unique identifier of the customer who submitted the review."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+
+      - name: review_score
+        description: "Customer satisfaction score for the order, ranging from 1 (lowest) to 5 (highest)."
+        data_tests:
+          - not_null
+
+      - name: review_comment_title
+        description: "Optional title provided by the customer for the review."
+
+      - name: review_comment_message
+        description: "Optional free-text review message provided by the customer."
+
+      - name: review_creation_date
+        description: "Date the customer created the review."
+        data_tests:
+          - not_null
+
+      - name: review_answer_timestamp
+        description: "Timestamp when the review was recorded in the Olist platform."
+
+      - name: order_status
+        description: "Current lifecycle status of the associated order."
+
+      - name: order_purchase_timestamp
+        description: "Timestamp when the order was placed."
+
+      - name: order_approved_at
+        description: "Timestamp when the order was approved."
+
+      - name: order_delivered_carrier_date
+        description: "Timestamp when the order was handed over to the carrier."
+
+      - name: order_delivered_customer_date
+        description: "Timestamp when the customer received the order."
+
+      - name: order_estimated_delivery_date
+        description: "Estimated delivery date communicated to the customer."

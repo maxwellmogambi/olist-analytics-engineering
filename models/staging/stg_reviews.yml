@@ -1,0 +1,59 @@
+version: 2
+
+models:
+  - name: stg_reviews
+    description: >
+      Staging model containing customer reviews submitted for Olist orders.
+
+      This model performs basic cleaning, renaming, and type standardization
+      without altering the source grain.
+
+      Grain:
+      One row = one review record associated with an order.
+
+      Note:
+      The source dataset contains duplicate review_id values across different
+      orders. Therefore, the natural key for this staging model is the
+      combination of (review_id, order_id).
+
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - review_id
+              - order_id
+
+    columns:
+      - name: review_id
+        description: >
+          Identifier of the review. A review identifier may be reused across
+          multiple orders in the source dataset.
+        data_tests:
+          - not_null
+
+      - name: order_id
+        description: "Unique identifier of the order associated with the review."
+        data_tests:
+          - not_null
+
+      - name: review_score
+        description: "Customer satisfaction score ranging from 1 (lowest) to 5 (highest)."
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [1, 2, 3, 4, 5]
+
+      - name: review_comment_title
+        description: "Optional title provided by the customer for the review."
+
+      - name: review_comment_message
+        description: "Optional free-text message provided by the customer."
+
+      - name: review_creation_date
+        description: "Date when the customer created the review."
+        data_tests:
+          - not_null
+
+      - name: review_answer_timestamp
+        description: "Timestamp when the review was processed or recorded by the Olist platform."

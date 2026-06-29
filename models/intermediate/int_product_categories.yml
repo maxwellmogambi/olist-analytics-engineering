@@ -1,0 +1,12 @@
+version: 2
+
+models:
+  - name: int_product_categories
+    description: "Product category mappings derived from the category translation table."
+    columns:
+      - name: product_category_name
+        description: "Product category name from the source dataset."
+        data_tests:
+          - not_null
+      - name: product_category_name_english
+        description: "English translation of the product category name."

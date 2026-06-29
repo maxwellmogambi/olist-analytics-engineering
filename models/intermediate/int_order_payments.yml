@@ -1,0 +1,19 @@
+version: 2
+
+models:
+  - name: int_order_payments
+    description: "Order-level payment metrics derived from payment transactions."
+    columns:
+      - name: order_id
+        description: "Unique identifier of the order associated with the payment metrics."
+        data_tests:
+          - not_null
+          - unique
+      - name: payment_count
+        description: "Total number of payment transactions associated with the order."
+        data_tests:
+          - not_null
+      - name: total_payment_value
+        description: "Total payment value associated with the order."
+      - name: max_installments
+        description: "Maximum number of installments used across the order payments."

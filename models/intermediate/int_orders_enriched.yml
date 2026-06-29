@@ -1,0 +1,31 @@
+version: 2
+
+models:
+  - name: int_orders_enriched
+    description: "Order-level model enriched with payment metrics derived from payment transactions."
+    columns:
+      - name: order_id
+        description: "Unique identifier for each order."
+        data_tests:
+          - not_null
+          - unique
+      - name: customer_id
+        description: "Identifier for the customer who placed the order."
+        data_tests:
+          - not_null
+      - name: order_status
+        description: "Current status of the order (e.g., delivered, shipped, canceled)."
+        data_tests:
+          - not_null
+      - name: order_purchased_at
+        description: "Timestamp when the order was placed."
+      - name: order_approved_at
+        description: "Timestamp when the order was approved."
+      - name: order_delivered_customer_date
+        description: "Timestamp when the order was delivered to the customer."
+      - name: payment_count
+        description: "Total number of payment transactions associated with the order."
+      - name: total_payment_value
+        description: "Total payment value associated with the order."
+      - name: max_installments
+        description: "Maximum number of installments used across the order payments."

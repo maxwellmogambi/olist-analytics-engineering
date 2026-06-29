@@ -1,0 +1,16 @@
+version: 2
+
+models:
+  - name: stg_geolocation
+    description: "This model is a staging table for geolocation data."
+    columns:
+      - name: geolocation_zip_code_prefix
+        description: "ZIP code prefix of the geolocation record."
+      - name: geolocation_lat
+        description: "Latitude of the geolocation record."
+      - name: geolocation_lng
+        description: "Longitude of the geolocation record."
+      - name: geolocation_city
+        description: "City of the geolocation record."
+      - name: geolocation_state
+        description: "State of the geolocation record."

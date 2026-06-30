@@ -73,3 +73,182 @@ The project was designed around the following engineering objectives:
 * Produce a repository that demonstrates analytics engineering best practices rather than simply SQL proficiency.
 
 Ultimately, the goal of this project is to demonstrate a practical understanding of modern analytics engineering using dbt—from raw source ingestion to a fully documented analytical warehouse.
+
+
+---
+
+# Warehouse Architecture
+
+## Architectural Approach
+
+The warehouse follows a layered transformation architecture based on dbt best practices. Each layer has a single responsibility, allowing transformations to remain modular, reusable, and easy to maintain.
+
+Rather than transforming raw data directly into reporting tables, data progresses through successive refinement stages:
+
+```text
+Raw Data
+    │
+    ▼
+Sources
+    │
+    ▼
+Staging Models
+    │
+    ▼
+Intermediate Models
+    │
+    ▼
+Mart Layer
+    ├── Dimension Tables
+    └── Fact Tables
+```
+
+Each layer builds upon the previous one without bypassing the architecture, resulting in predictable data lineage and clear separation of responsibilities.
+
+---
+
+## Transformation Layers
+
+### Source Layer
+
+The Source layer represents the raw Olist datasets loaded into DuckDB.
+
+No business logic is applied at this stage. Source definitions establish the connection between dbt and the underlying tables while enabling lineage tracking and source-level testing.
+
+Responsibilities:
+
+* Register raw datasets
+* Preserve original source structure
+* Serve as the authoritative entry point into the transformation pipeline
+
+---
+
+### Staging Layer
+
+The staging layer standardizes each raw dataset into a clean, consistent representation.
+
+Transformations in this layer intentionally remain lightweight and avoid business logic.
+
+Typical staging transformations include:
+
+* Renaming columns
+* Casting data types
+* Removing unnecessary columns
+* Standardizing naming conventions
+* Preserving the original grain
+
+Each staging model corresponds to a single source table, making this layer easy to understand and maintain.
+
+---
+
+### Intermediate Layer
+
+Intermediate models encapsulate reusable business logic.
+
+Rather than embedding calculations directly into fact or dimension models, common transformations are centralized here so they can be reused across multiple downstream models.
+
+Examples include:
+
+* Order payment aggregation
+* Product sales metrics
+* Seller performance metrics
+* Customer purchasing metrics
+* Product category translation
+
+This separation minimizes duplicated SQL while improving maintainability and consistency.
+
+---
+
+### Mart Layer
+
+The mart layer contains the analytical warehouse presented to downstream consumers.
+
+It is organized into two categories:
+
+#### Dimension Tables
+
+Dimensions describe business entities.
+
+Current dimensions include:
+
+* Customers
+* Products
+* Sellers
+
+Dimension models provide descriptive attributes that support filtering, grouping, and slicing analytical queries.
+
+---
+
+#### Fact Tables
+
+Facts capture measurable business events.
+
+Current fact tables include:
+
+* Orders
+* Order Items
+* Payments
+* Reviews
+
+Each fact table has a clearly documented grain and references conformed dimensions to provide analytical context while preserving transactional detail.
+
+---
+
+## Data Lineage
+
+A key design objective throughout the project was maintaining clean and predictable lineage.
+
+Every transformation references the most authoritative upstream model available.
+
+Examples include:
+
+* Fact tables depend on staging models and reusable intermediate models.
+* Intermediate models never depend on mart models.
+* Dimensions are built independently of facts whenever possible.
+* Shared business logic is implemented once and reused downstream.
+
+This approach keeps the Directed Acyclic Graph (DAG) easy to understand while avoiding circular dependencies and duplicated transformation logic.
+
+---
+
+## Modeling Principles
+
+Several engineering principles guided every model developed throughout the project.
+
+### Define the grain before writing SQL
+
+Each model explicitly documents its grain before implementation.
+
+This ensures joins preserve row-level integrity and prevents accidental duplication of business events.
+
+---
+
+### Profile data before modeling
+
+Source data was profiled before designing transformations.
+
+Examples include validating:
+
+* Primary keys
+* Composite keys
+* Duplicate records
+* Cardinality
+* Relationship integrity
+
+Modeling decisions were driven by observed data characteristics rather than assumptions.
+
+---
+
+### Reuse transformations
+
+Business logic is implemented once within intermediate models and reused throughout the warehouse.
+
+This reduces maintenance effort while ensuring analytical consistency across downstream models.
+
+---
+
+### Preserve authoritative lineage
+
+Each model references the most appropriate upstream source.
+
+The warehouse intentionally avoids reverse dependencies, such as intermediate models depending on marts, ensuring every transformation layer remains reusable and logically independent.

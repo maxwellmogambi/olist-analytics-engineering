@@ -448,3 +448,150 @@ Documentation includes:
 The generated documentation enables downstream users to understand each model without reading the SQL implementation.
 
 > **{Insert Screenshot: dbt Docs homepage here}**
+![alt text](image.png)
+
+---
+
+# Data Quality & Testing
+
+Reliable analytics begin with reliable data.
+
+A core objective of this project was to ensure that every analytical model was built on validated assumptions rather than inferred relationships. Before implementing transformations, the underlying datasets were profiled to understand their grain, cardinality, uniqueness, and referential integrity.
+
+These findings informed both the warehouse design and the automated tests implemented throughout the project.
+
+---
+
+## Testing Philosophy
+
+The testing strategy follows a simple principle:
+
+> **Every model should verify the assumptions on which it was built.**
+
+Rather than applying tests uniformly across every column, each test was selected based on the role of the model and the business rules governing the data.
+
+For example:
+
+* Primary business identifiers should never be null.
+* Relationships between facts and dimensions should remain valid.
+* Enumerated business fields should only contain expected values.
+* Composite natural keys should remain unique where required.
+* Model grain should never change unexpectedly.
+
+This approach ensures that tests validate business integrity rather than merely increasing the number of passing checks.
+
+---
+
+## Testing Workflow
+
+The testing process followed the same lifecycle for every model.
+
+```mermaid
+flowchart LR
+
+A[Profile Source Data]
+--> B[Define Model Grain]
+--> C[Build SQL Model]
+--> D[Validate Row Counts]
+--> E[Validate Grain]
+--> F[Implement dbt Tests]
+--> G[Generate Documentation]
+```
+
+This workflow helped identify data quality issues before they propagated into downstream models.
+
+---
+
+# Data Profiling
+
+Before building each model, exploratory analysis was performed to validate assumptions about the source data.
+
+Profiling activities included:
+
+* Row count validation
+* Duplicate detection
+* Primary key validation
+* Composite key validation
+* Referential integrity checks
+* Cardinality analysis
+* Business rule verification
+
+Several important modeling decisions emerged directly from this profiling process.
+
+For example:
+
+* Customer identifiers were found to represent multiple customer records over time, requiring careful interpretation.
+* Product identifiers were confirmed to be unique and suitable as natural keys.
+* Payment records required a composite key of (`order_id`, `payment_sequential`).
+* Review records required a composite key of (`review_id`, `order_id`) because neither field was independently unique.
+
+These observations ensured that the warehouse reflected the true characteristics of the source data rather than idealized assumptions.
+
+---
+
+# Implemented Tests
+
+The project uses dbt's native testing framework together with `dbt_utils` to validate data quality.
+
+Implemented test categories include:
+
+| Test Type                                 | Purpose                                         |
+| ----------------------------------------- | ----------------------------------------------- |
+| `not_null`                                | Ensures mandatory business fields are populated |
+| `relationships`                           | Validates referential integrity between models  |
+| `accepted_values`                         | Restricts categorical fields to expected values |
+| `unique`                                  | Verifies uniqueness of natural keys             |
+| `dbt_utils.unique_combination_of_columns` | Validates composite business keys               |
+
+These tests are executed automatically during project builds, providing continuous validation of warehouse integrity.
+
+---
+
+# Documentation-Driven Development
+
+Documentation and testing were developed together.
+
+Each model includes:
+
+* Model description
+* Column descriptions
+* Explicit grain definition
+* Appropriate data quality tests
+
+This ensures that documentation remains synchronized with the implementation rather than becoming an afterthought.
+
+---
+
+# Validation Beyond dbt Tests
+
+Automated tests alone cannot guarantee analytical correctness.
+
+Throughout development, additional validation queries were used to verify:
+
+* Grain preservation
+* Revenue consistency across models
+* Aggregation accuracy
+* Join cardinality
+* Row-count reconciliation
+* Source-to-model consistency
+
+These analytical validation steps complemented dbt's automated testing framework and provided greater confidence in the correctness of each transformation.
+
+---
+
+# Quality Outcomes
+
+By combining exploratory profiling with automated validation, the resulting warehouse provides:
+
+* Clearly defined model grain
+* Preserved transactional integrity
+* Trusted foreign key relationships
+* Consistent business metrics
+* Self-documenting analytical models
+* Repeatable validation through dbt
+
+Rather than relying solely on SQL correctness, the project emphasizes **confidence in the analytical outputs**, ensuring that downstream reporting is built upon a reliable and well-tested foundation.
+
+> **{Insert Screenshot: dbt test output showing all tests passing}**
+
+> **{Insert Screenshot: dbt Docs test coverage or model documentation showing tests}**

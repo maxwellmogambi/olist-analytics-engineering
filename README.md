@@ -179,7 +179,7 @@ Dimension models provide descriptive attributes that support filtering, grouping
 
 ---
 
-#### Fact Tables
+### Fact Tables
 
 Facts capture measurable business events.
 
@@ -252,3 +252,199 @@ This reduces maintenance effort while ensuring analytical consistency across dow
 Each model references the most appropriate upstream source.
 
 The warehouse intentionally avoids reverse dependencies, such as intermediate models depending on marts, ensuring every transformation layer remains reusable and logically independent.
+
+---
+
+# Data Model
+
+The analytical warehouse follows a dimensional modeling approach, organizing data into **fact tables** that capture business events and **dimension tables** that provide descriptive context.
+
+This design supports intuitive analytical queries while preserving the transactional integrity of the underlying operational data.
+
+---
+
+## Warehouse Overview
+
+The warehouse is centered around the customer purchasing lifecycle.
+
+Customers place orders containing one or more order items. Each order may have one or more associated payment transactions and can receive one or more customer reviews. Products are sold by sellers, providing the business context required for analytical reporting.
+
+```mermaid
+erDiagram
+
+CUSTOMERS ||--o{ ORDERS : places
+
+ORDERS ||--o{ ORDER_ITEMS : contains
+
+PRODUCTS ||--o{ ORDER_ITEMS : purchased
+
+SELLERS ||--o{ ORDER_ITEMS : fulfills
+
+ORDERS ||--o{ PAYMENTS : paid_by
+
+ORDERS ||--o{ REVIEWS : reviewed_after
+```
+
+> **{Insert Screenshot: Warehouse lineage (Facts & Dimensions) from dbt Docs here}**
+
+---
+
+# Fact Tables
+
+Fact tables capture measurable business events at explicitly defined grains.
+
+| Model             | Grain                                              | Business Event             |
+| ----------------- | -------------------------------------------------- | -------------------------- |
+| `fct_orders`      | One row per order                                  | Customer order lifecycle   |
+| `fct_order_items` | One row per order item                             | Individual purchased items |
+| `fct_payments`    | One row per payment transaction                    | Order payment events       |
+| `fct_reviews`     | One row per review record associated with an order | Customer feedback          |
+
+Each fact table preserves transactional detail while exposing foreign keys that connect to the corresponding dimensions.
+
+---
+
+## Fact: Orders
+
+Represents the complete lifecycle of a customer order.
+
+This model captures order-level timestamps and status information while enriching each order with customer context and aggregated payment information.
+
+Typical analyses include:
+
+* Revenue by order
+* Order lifecycle performance
+* Delivery performance
+* Customer purchasing activity
+
+---
+
+## Fact: Order Items
+
+Represents individual items purchased within an order.
+
+Because a single order may contain multiple products from multiple sellers, this fact provides the lowest transactional grain for product and seller analysis.
+
+Typical analyses include:
+
+* Product revenue
+* Seller performance
+* Product popularity
+* Freight costs
+* Basket composition
+
+---
+
+## Fact: Payments
+
+Represents payment transactions associated with customer orders.
+
+Orders may contain multiple payment records, making this model suitable for payment behavior analysis.
+
+Typical analyses include:
+
+* Payment methods
+* Installment usage
+* Payment value distribution
+* Revenue by payment type
+
+---
+
+## Fact: Reviews
+
+Represents customer review records associated with completed orders.
+
+During exploratory profiling, it was discovered that neither `review_id` nor `order_id` uniquely identifies a review. The implemented grain therefore uses the composite natural key (`review_id`, `order_id`), preserving the characteristics of the source data without introducing artificial uniqueness.
+
+Typical analyses include:
+
+* Customer satisfaction
+* Review score distribution
+* Review trends
+* Customer feedback
+
+---
+
+# Dimension Tables
+
+Dimension tables describe the core business entities referenced by the fact tables.
+
+Unlike transactional facts, dimensions provide descriptive attributes used for filtering, grouping, and aggregation.
+
+| Model           | Business Entity      |
+| --------------- | -------------------- |
+| `dim_customers` | Customer information |
+| `dim_products`  | Product catalog      |
+| `dim_sellers`   | Marketplace sellers  |
+
+---
+
+## Customer Dimension
+
+Contains descriptive information about customers, including geographic attributes and customer identifiers.
+
+This dimension supports customer segmentation and regional analysis.
+
+---
+
+## Product Dimension
+
+Contains descriptive product attributes including category information and physical characteristics.
+
+The product dimension is enriched using translated category information to provide more meaningful analytical outputs.
+
+---
+
+## Seller Dimension
+
+Contains descriptive information about marketplace sellers.
+
+This dimension enables seller-level performance analysis across products, orders, and revenue.
+
+---
+
+# Intermediate Models
+
+Intermediate models encapsulate reusable business logic shared across multiple downstream models.
+
+Rather than embedding calculations directly into fact or dimension models, reusable transformations are isolated into dedicated models.
+
+Examples include:
+
+* Customer purchasing metrics
+* Product sales metrics
+* Seller performance metrics
+* Order payment aggregations
+* Product category translations
+
+This approach minimizes duplicated SQL while improves maintainability and keeps business logic centralized.
+
+---
+
+# Data Lineage
+
+The project was intentionally designed to maintain clear upstream dependencies.
+
+Each model references the most authoritative upstream model available, ensuring reusable transformations and preventing circular dependencies.
+
+The resulting Directed Acyclic Graph (DAG) provides complete traceability from raw source tables to analytical marts.
+
+> **{Insert Screenshot: Complete dbt DAG here}**
+
+---
+
+# Documentation
+
+Every analytical model within the warehouse is documented using dbt's native documentation framework.
+
+Documentation includes:
+
+* Model descriptions
+* Column descriptions
+* Model grain
+* Data lineage
+* Automated data tests
+
+The generated documentation enables downstream users to understand each model without reading the SQL implementation.
+
+> **{Insert Screenshot: dbt Docs homepage here}**

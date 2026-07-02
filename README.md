@@ -607,3 +607,105 @@ Rather than relying solely on SQL correctness, the project emphasizes **confiden
 > **{Insert Screenshot: dbt test output showing all tests passing}**
 
 > **{Insert Screenshot: dbt Docs test coverage or model documentation showing tests}**
+
+---
+
+# Project Structure
+
+The repository follows a layered dbt architecture that separates raw data standardization, reusable business logic, and analytical models.
+
+```text
+.
+├── analyses/              # Exploratory SQL and validation queries
+├── macros/                # Reusable dbt macros
+├── models/
+│   ├── staging/           # Source standardization
+│   ├── intermediate/      # Reusable business transformations
+│   └── marts/
+│       ├── dimensions/    # Dimension tables
+│       └── facts/         # Fact tables
+├── seeds/                 # Static reference data (if applicable)
+├── snapshots/             # Historical tracking (if applicable)
+├── tests/                 # Custom data tests
+├── dbt_project.yml
+├── packages.yml
+└── profiles.yml
+```
+
+---
+
+# Technology Stack
+
+| Technology       | Purpose                                                  |
+| ---------------- | -------------------------------------------------------- |
+| **dbt Core**     | Data transformation, testing, documentation, and lineage |
+| **DuckDB**       | Local analytical data warehouse                          |
+| **SQL**          | Data transformation and dimensional modeling             |
+| **dbt-utils**    | Composite key and utility tests                          |
+| **Git & GitHub** | Version control and collaboration                        |
+
+---
+
+# Getting Started
+
+## Prerequisites
+
+Before running the project, ensure you have:
+
+* Python 3.11+ (or your project's supported version)
+* dbt Core installed
+* DuckDB installed
+* Git
+
+Clone the repository:
+
+```bash
+git clone <repository-url>
+cd <repository-folder>
+```
+
+Install project dependencies:
+
+```bash
+dbt deps
+```
+
+Verify the project configuration:
+
+```bash
+dbt debug
+```
+
+Build the warehouse:
+
+```bash
+dbt build
+```
+
+Generate project documentation:
+
+```bash
+dbt docs generate
+```
+
+Launch the interactive documentation site:
+
+```bash
+dbt docs serve
+```
+
+---
+
+# Expected Output
+
+After a successful build, the project will provide:
+
+* A layered analytical warehouse in DuckDB
+* Fully documented dbt models
+* Automated data quality validation
+* End-to-end lineage from sources to marts
+* Fact and dimension tables ready for downstream analytics
+
+> **{Insert Screenshot: dbt Docs homepage}**
+
+> **{Insert Screenshot: Full project DAG}**

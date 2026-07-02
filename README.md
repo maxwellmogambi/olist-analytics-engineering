@@ -202,7 +202,7 @@ Output
 
 ## 9. Documentation Index
 
-```markdown
+
 # Documentation
 
 Detailed implementation documentation is available in the `docs/` directory.

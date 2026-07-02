@@ -29,6 +29,18 @@ Although the Olist dataset is static, the project follows engineering practices 
 
 ---
 
+## Project Highlights
+
+- Layered dbt architecture (Sources → Staging → Intermediate → Marts)
+- Star schema with fact and dimension models
+- 100% documented analytical models
+- Automated data quality tests
+- Reusable intermediate transformations
+- Generated dbt documentation and lineage
+- DuckDB-powered local analytics warehouse
+
+---
+
 ## Business Context
 
 Olist is a Brazilian e-commerce marketplace that connects customers with thousands of independent sellers across Brazil.
@@ -448,7 +460,7 @@ Documentation includes:
 The generated documentation enables downstream users to understand each model without reading the SQL implementation.
 
 > **{Insert Screenshot: dbt Docs homepage here}**
-![alt text](image.png)
+
 
 ---
 

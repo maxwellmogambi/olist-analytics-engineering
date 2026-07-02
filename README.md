@@ -660,7 +660,7 @@ Before running the project, ensure you have:
 Clone the repository:
 
 ```bash
-git clone <repository-url>
+git clone <https://github.com/maxwellmogambi/olist-analytics-engineering>
 cd <repository-folder>
 ```
 
@@ -709,3 +709,73 @@ After a successful build, the project will provide:
 > **{Insert Screenshot: dbt Docs homepage}**
 
 > **{Insert Screenshot: Full project DAG}**
+
+---
+
+# Engineering Decisions
+
+Several implementation decisions were made deliberately to prioritize correctness, maintainability, and clear data lineage over unnecessary complexity.
+
+| Decision                         | Rationale                                                                                                                                                                             |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Layered Architecture**         | Models progress through Sources → Staging → Intermediate → Marts, ensuring each layer has a single responsibility and preventing tightly coupled transformations.                     |
+| **Grain-First Modeling**         | Every model's grain was defined and validated before writing SQL to preserve transactional integrity and prevent unintended duplication.                                              |
+| **Profile Before Transforming**  | Source data was profiled to validate uniqueness, cardinality, and relationships before implementing business logic.                                                                   |
+| **Reusable Intermediate Models** | Shared business calculations were centralized in intermediate models to eliminate duplicated SQL and simplify maintenance.                                                            |
+| **Authoritative Lineage**        | Models reference the most authoritative upstream data available. Intermediate models never depend on mart models, preserving clean lineage and reusability.                           |
+| **Natural Keys**                 | The Olist dataset provides stable natural business keys, making surrogate keys unnecessary for this project's analytical requirements.                                                |
+| **Composite Business Keys**      | Composite uniqueness tests were implemented where the source data required them, such as payments (`order_id`, `payment_sequential`) and reviews (`review_id`, `order_id`).           |
+| **Selective Modeling**           | The geolocation dataset was intentionally excluded from the dimensional model because it added complexity without providing meaningful analytical value for the project's objectives. |
+
+These decisions reflect common analytics engineering practices used to build reliable and maintainable data warehouses rather than simply producing analytical tables.
+
+---
+
+# Future Improvements
+
+While the project demonstrates the core capabilities of dbt, several enhancements would bring it closer to a production-ready analytics platform.
+
+## Engineering
+
+* Implement model contracts to enforce schema consistency.
+* Introduce incremental materializations for large fact tables.
+* Configure source freshness monitoring.
+* Expand reusable macros for common transformation patterns.
+* Add CI/CD pipelines to automate `dbt build` and `dbt test`.
+
+## Data Modeling
+
+* Introduce a conformed date dimension.
+* Expand dimensional coverage where additional business entities provide analytical value.
+* Evaluate snapshots for tracking slowly changing dimensions if historical source changes become available.
+
+## Analytics
+
+* Define business metrics using the dbt Semantic Layer.
+* Add exposures to document downstream dashboards and reports.
+* Build example dashboards to demonstrate analytical use cases.
+
+---
+
+# Lessons Learned
+
+This project reinforced several principles that are fundamental to analytics engineering:
+
+* Correct model grain is the foundation of every reliable warehouse.
+* Data profiling should precede transformation design.
+* Intermediate models improve reuse, consistency, and maintainability.
+* Automated tests increase confidence in analytical outputs.
+* Clear documentation is as valuable as well-written SQL.
+* Simple, well-structured models are often preferable to overly complex transformations.
+
+Perhaps the most significant lesson was that analytics engineering is not simply about transforming data—it is about building trustworthy data assets. Achieving that requires thoughtful modeling, validation, documentation, and disciplined engineering practices.
+
+---
+
+# Conclusion
+
+This project demonstrates the end-to-end development of a modern analytical warehouse using dbt, following a layered architecture and dimensional modeling principles.
+
+Beyond producing analytical tables, the project emphasizes the practices that underpin reliable analytics engineering: explicit model grain, reusable transformations, automated testing, comprehensive documentation, and maintainable data lineage.
+
+The resulting repository serves both as a functional analytics project and as a demonstration of modern dbt development practices, providing a strong foundation for future enhancements and production-scale analytics workflows.
